@@ -350,11 +350,13 @@
             // Apps Script 웹앱을 "모든 사용자" 접근 허용 + POST 핸들링하게 만들어두면 아래 fetch로 수집됩니다.
             if (APPS_SCRIPT_URL) {
                 try {
-                   fetch(APPS_SCRIPT_URL, {
+                   // 기존: application/json + JSON.stringify(formData)
+// 변경: x-www-form-urlencoded + payload=JSON.stringify(...)
+fetch(APPS_SCRIPT_URL, {
   method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(formData),
-  mode: 'no-cors'   // ← 중요!
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  body: 'payload=' + encodeURIComponent(JSON.stringify(formData)),
+  mode: 'no-cors'
 });
                 } catch (e) {
                     console.error('스프레드시트 전송 오류:', e);
