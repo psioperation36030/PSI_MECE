@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>강의 MECE 데이터 수집 시트</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; padding: 20px;
+        }
+        .container {
+            max-width: 1400px; margin: 0 auto; background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden; backdrop-filter: blur(10px);
+        }
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white; padding: 30px; text-align: center;
+        }
+        .header h1 { font-size: 2.2em; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .header p { opacity: 0.9; font-size: 1.1em; }
+        .form-container { padding: 30px; }
+
+        .basic-info {
+            background: #f8f9ff; padding: 25px; border-radius: 15px; margin-bottom: 30px; border-left: 5px solid #4facfe;
+        }
+        .basic-info h2 { color: #333; margin-bottom: 20px; font-size: 1.4em; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-weight: bold; color: #555; margin-bottom: 8px; font-size: 0.95em; }
+        .form-group input, .form-group select {
+            padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 1em; transition: all 0.3s ease;
+        }
+        .form-group input[type="date"] { cursor: pointer; position: relative; }
+        .form-group input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer; position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: auto; height: auto; color: transparent; background: transparent;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .mece-section h2 {
+            color: #333; margin-bottom: 20px; font-size: 1.4em; text-align: center;
+        }
+        .module-controls {
+            display: flex; justify-content: center; gap: 15px; margin-bottom: 25px;
+        }
+        .module-btn {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            color: #6c757d; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-weight: bold;
+        }
+        .module-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .module-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .module-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .mece-table-container { overflow-x: auto; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .mece-table { width: 100%; border-collapse: collapse; background: white; min-width: 800px; }
+        .mece-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 15px; text-align: left; font-weight: bold; position: sticky; top: 0; z-index: 10;
+        }
+        .mece-table th.question-col { width: 200px; min-width: 200px; }
+        .mece-table th.module-col { width: 200px; min-width: 180px; text-align: center; }
+        .mece-table td { padding: 12px; border: 1px solid #e1e5e9; vertical-align: top; }
+        .mece-table td.question-cell { background: #f8f9ff; font-weight: bold; color: #555; }
+
+        .module-name-input {
+            width: 100%; padding: 8px; border: 2px solid #4facfe; border-radius: 6px; background: #f0f8ff;
+            text-align: center; font-weight: bold; color: #333;
+        }
+        .mece-input {
+            width: 100%; min-height: 60px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; resize: vertical; font-family: inherit; transition: border-color 0.3s ease;
+        }
+        .mece-input:focus { outline: none; border-color: #4facfe; box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.1); }
+
+        .submit-section { text-align: center; margin-top: 30px; padding-top: 30px; border-top: 2px solid #f0f0f0; }
+        .submit-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white; border: none; padding: 15px 40px; border-radius: 30px; font-size: 1.1em; font-weight: bold;
+            cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4); }
+
+        .success-message {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white; padding: 30px 40px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            text-align: center; font-size: 1.2em; font-weight: bold; z-index: 1000;
+            display: none; animation: fadeInOut 3s ease-in-out;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+
+        .error-message { color: #ff4757; font-size: 0.85em; margin-top: 5px; font-weight: bold; display: none; }
+        .error-border { border-color: #ff4757 !important; box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2) !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 PSI컨설팅 강의 데이터 취합 시트</h1>
+            <p>강의 간 주요 사항 및 특이사항을 기재해주세요! 콘텐츠 중복 이슈 방지 목적입니다.</p>
+        </div>
+
+        <div class="form-container">
+            <!-- 기본 정보 -->
+            <div class="basic-info">
+                <h2>📋 강의 기본정보</h2>
+                <div class="info-grid">
+                    <div class="form-group">
+                        <label for="instructor">강사님 성함</label>
+                        <select id="instructor" required>
+  <option value="">선택해주세요</option>
+
+  <!-- ㄱ -->
+  <option value="강완섭">강완섭</option>
+  <option value="강윤아">강윤아</option>
+  <option value="김광현">김광현</option>
+  <option value="김영학">김영학</option> <!-- 추가 확인 -->
+  <option value="김지나">김지나</option>
+  <option value="김태은">김태은</option>
+
+  <!-- ㅂ -->
+  <option value="박가영">박가영</option>
+  <option value="박광성">박광성</option>
+  <option value="박태웅">박태웅</option>
+
+  <!-- ㅅ -->
+  <option value="신기호">신기호</option> <!-- 추가 -->
+
+  <!-- ㅇ -->
+  <option value="연제익">연제익</option>
+  <option value="이규완">이규완</option>
+  <option value="이정훈">이정훈</option>
+  <option value="이주연">이주연</option>
+  <option value="이치민">이치민</option>
+
+  <!-- ㅈ -->
+  <option value="장미화">장미화</option> <!-- 추가 -->
+  <option value="장은아">장은아</option>
+
+  <!-- ㅊ -->
+  <option value="최오성">최오성</option>
+</select>
+
+                        <div class="error-message" id="instructor-error">강사님을 선택해주세요!</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="company">고객사명</label>
+                        <input type="text" id="company" required>
+                        <div class="error-message" id="company-error">없으면 '없음' 또는 'X'로 기재해주세요!</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="course">과정명</label>
+                        <input type="text" id="course" required>
+                        <div class="error-message" id="course-error">없으면 '없음' 또는 'X'로 기재해주세요!</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date">강의 날짜</label>
+                        <input type="date" id="date" required>
+                        <div class="error-message" id="date-error">강의 날짜를 선택해주세요!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MECE -->
+            <div class="mece-section">
+                <h2>📊 강의 MECE</h2>
+
+                <div class="module-controls">
+                    <button class="module-btn" onclick="setModuleCount(1)">1개 모듈</button>
+                    <button class="module-btn" onclick="setModuleCount(2)">2개 모듈</button>
+                    <button class="module-btn" onclick="setModuleCount(3)">3개 모듈</button>
+                    <button class="module-btn" onclick="setModuleCount(4)">4개 모듈</button>
+                    <button class="module-btn" onclick="setModuleCount(5)">5개 모듈</button>
+                </div>
+
+                <div class="mece-table-container">
+                    <table class="mece-table" id="meceTable">
+                        <thead>
+                            <tr>
+                                <th class="question-col">구분</th>
+                                <th class="module-col">M1</th>
+                                <th class="module-col">M2</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="question-cell">모듈명</td>
+                                <td><input type="text" class="module-name-input" placeholder="모듈명 입력"></td>
+                                <td><input type="text" class="module-name-input" placeholder="모듈명 입력"></td>
+                            </tr>
+                            <tr>
+                                <td class="question-cell"><strong>아이스브레이킹</strong> 소재</td>
+                                <td><textarea class="mece-input"></textarea></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="question-cell">교육 중 <strong>예화/예시</strong></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="question-cell"><strong>진단</strong></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="question-cell">사용 <strong>동영상</strong></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="question-cell"><strong>스팟/액티비티</strong></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="question-cell"><strong>마무리 예화/멘트</strong></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 전체 강의 관련 정보 -->
+            <div class="basic-info" style="margin-top: 30px;">
+                <h2>📝 전체 강의 관련 정보</h2>
+                <div class="form-group">
+                    <label for="learnerReaction">학습자 반응</label>
+                    <textarea id="learnerReaction" class="mece-input" style="height: 100px;" placeholder="학습 장면에서의 전체 반응을 기재해주세요."></textarea>
+                    <div class="error-message" id="learnerReaction-error">없으면 '없음' 또는 'X'로 기재해주세요!</div>
+                </div>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="specialNotes">기타 특이사항</label>
+                    <textarea id="specialNotes" class="mece-input" style="height: 100px;" placeholder="기타 특이사항을 자유롭게 기재해주세요."></textarea>
+                    <div class="error-message" id="specialNotes-error">없으면 '없음' 또는 'X'로 기재해주세요!</div>
+                </div>
+            </div>
+
+            <div class="submit-section">
+                <button class="submit-btn" onclick="submitData()">📤 제출하기</button>
+            </div>
+        </div>
+
+        <!-- 성공 메시지 -->
+        <div class="success-message" id="successMessage">
+            ✅ 제출이 완료되었습니다.<br>소장님 감사합니다! 😊
+        </div>
+    </div>
+
+    <script>
+        // === (선택) 구글 스프레드시트 Apps Script 웹앱 URL ===
+        // 아래 URL을 본인 프로젝트의 배포된 웹앱 URL로 교체하세요.
+        // 예: const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyRzYthr4GLDmLiJKAbuMCK6QKDIEeH9VGtmWAmbgR6s3yRSeeYqnX9kcrixna2gEhf/exec';
+        const APPS_SCRIPT_URL = ''; // 비워두면 네트워크 전송을 생략합니다.
+
+        let currentModuleCount = 2;
+
+        function setModuleCount(count) {
+            currentModuleCount = count;
+            updateActiveButton(count);
+
+            const table = document.getElementById('meceTable');
+            const thead = table.querySelector('thead tr');
+            const tbody = table.querySelector('tbody');
+
+            // 기존 값 백업
+            const existingData = [];
+            const rows = tbody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const rowData = [];
+                const cells = row.querySelectorAll('td:not(.question-cell)');
+                cells.forEach(cell => {
+                    const input = cell.querySelector('input');
+                    const textarea = cell.querySelector('textarea');
+                    rowData.push(input ? input.value : (textarea ? textarea.value : ''));
+                });
+                existingData.push(rowData);
+            });
+
+            // 헤더 재구성
+            thead.innerHTML = '<th class="question-col">구분</th>';
+            for (let i = 1; i <= count; i++) {
+                thead.innerHTML += `<th class="module-col">M${i}</th>`;
+            }
+
+            // 행 셀 재생성 + 값 복원
+            const bodyRows = tbody.querySelectorAll('tr');
+            bodyRows.forEach((row, rowIndex) => {
+                // 기존 모듈 셀 제거
+                row.querySelectorAll('td:not(.question-cell)').forEach(cell => cell.remove());
+
+                for (let i = 1; i <= count; i++) {
+                    const cell = document.createElement('td');
+                    if (row.children[0].textContent === '모듈명') {
+                        cell.innerHTML = '<input type="text" class="module-name-input" placeholder="모듈명 입력">';
+                        if (existingData[rowIndex] && existingData[rowIndex][i-1]) {
+                            cell.querySelector('input').value = existingData[rowIndex][i-1];
+                        }
+                    } else {
+                        cell.innerHTML = '<textarea class="mece-input"></textarea>';
+                        if (existingData[rowIndex] && existingData[rowIndex][i-1]) {
+                            cell.querySelector('textarea').value = existingData[rowIndex][i-1];
+                        }
+                    }
+                    row.appendChild(cell);
+                }
+            });
+        }
+
+        function updateActiveButton(activeCount) {
+            document.querySelectorAll('.module-btn').forEach(btn => {
+                btn.classList.remove('active');
+                const n = parseInt(btn.textContent.match(/\d+/)[0]);
+                if (n === activeCount) btn.classList.add('active');
+            });
+        }
+
+        function submitData() {
+            const formData = collectFormData();
+
+            // 에러 초기화
+            clearAllErrors();
+
+            // 유효성 검사 (모든 필수 항목은 '없음'/'X' 허용)
+            if (!validateFormWithErrors(formData)) {
+                alert('모든 필수 항목을 입력해주세요. 빨간 글씨로 표시된 항목을 확인해주세요.');
+                return;
+            }
+
+            // 성공 메시지
+            const successMessage = document.getElementById('successMessage');
+            successMessage.style.display = 'block';
+            setTimeout(() => { successMessage.style.display = 'none'; }, 3000);
+
+            // === 구글 스프레드시트 전송 (선택) ===
+            // Apps Script 웹앱을 "모든 사용자" 접근 허용 + POST 핸들링하게 만들어두면 아래 fetch로 수집됩니다.
+            if (APPS_SCRIPT_URL) {
+                try {
+                   fetch(APPS_SCRIPT_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(formData),
+  mode: 'no-cors'   // ← 중요!
+});
+                } catch (e) {
+                    console.error('스프레드시트 전송 오류:', e);
+                }
+            }
+
+            // 입력 폼 초기화 (원치 않으면 주석 처리)
+            resetForm();
+        }
+
+        function clearAllErrors() {
+            document.querySelectorAll('.error-message').forEach(msg => msg.style.display = 'none');
+            document.querySelectorAll('.error-border').forEach(el => el.classList.remove('error-border'));
+        }
+
+        function validateFormWithErrors(formData) {
+            let isValid = true;
+
+            // 기본 정보
+            if (!formData.basic.instructor) { showError('instructor', 'instructor-error'); isValid = false; }
+            if (!formData.basic.company.trim()) { showError('company', 'company-error'); isValid = false; }
+            if (!formData.basic.course.trim()) { showError('course', 'course-error'); isValid = false; }
+            if (!formData.basic.date) { showError('date', 'date-error'); isValid = false; }
+
+            // 모듈별
+            formData.modules.forEach((m, idx) => {
+                const i = idx + 1;
+                if (!m.name.trim()) { showErrorForTableCell('module-name', i); isValid = false; }
+                if (!m.icebreaking.trim()) { showErrorForTableCell('icebreaking', i); isValid = false; }
+                if (!m.examples.trim()) { showErrorForTableCell('examples', i); isValid = false; }
+                if (!m.diagnosis.trim()) { showErrorForTableCell('diagnosis', i); isValid = false; }
+                if (!m.videos.trim()) { showErrorForTableCell('videos', i); isValid = false; }
+                if (!m.activities.trim()) { showErrorForTableCell('activities', i); isValid = false; }
+                if (!m.ending.trim()) { showErrorForTableCell('ending', i); isValid = false; }
+            });
+
+            // 전체 정보
+            if (!formData.overall.learnerReaction.trim()) { showError('learnerReaction', 'learnerReaction-error'); isValid = false; }
+            if (!formData.overall.specialNotes.trim()) { showError('specialNotes', 'specialNotes-error'); isValid = false; }
+
+            return isValid;
+        }
+
+        function showError(inputId, errorId) {
+            const input = document.getElementById(inputId);
+            const errorMsg = document.getElementById(errorId);
+            if (input) input.classList.add('error-border');
+            if (errorMsg) errorMsg.style.display = 'block';
+        }
+
+        function showErrorForTableCell(type, moduleIndex) {
+            const tbody = document.getElementById('meceTable').querySelector('tbody');
+            let rowIndex;
+            switch (type) {
+                case 'module-name': rowIndex = 0; break;
+                case 'icebreaking': rowIndex = 1; break;
+                case 'examples': rowIndex = 2; break;
+                case 'diagnosis': rowIndex = 3; break;
+                case 'videos': rowIndex = 4; break;
+                case 'activities': rowIndex = 5; break;
+                case 'ending': rowIndex = 6; break;
+            }
+            const row = tbody.children[rowIndex];
+            const cell = row.children[moduleIndex];
+            const input = cell.querySelector('input, textarea');
+            if (input) {
+                input.classList.add('error-border');
+                const existing = cell.querySelector('.error-message');
+                if (existing) existing.remove();
+                const div = document.createElement('div');
+                div.className = 'error-message';
+                div.style.display = 'block';
+                div.textContent = "없으면 '없음'이나 'X'로 기재해주세요!";
+                cell.appendChild(div);
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('instructor').value = '';
+            document.getElementById('company').value = '';
+            document.getElementById('course').value = '';
+
+            const today = new Date();
+            const dateString = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+            document.getElementById('date').value = dateString;
+
+            const inputs = document.getElementById('meceTable').querySelectorAll('input, textarea');
+            inputs.forEach(i => i.value = '');
+
+            document.getElementById('learnerReaction').value = '';
+            document.getElementById('specialNotes').value = '';
+        }
+
+        function collectFormData() {
+            const basic = {
+                instructor: document.getElementById('instructor').value,
+                company: document.getElementById('company').value,
+                course: document.getElementById('course').value,
+                date: document.getElementById('date').value
+            };
+            const overall = {
+                learnerReaction: document.getElementById('learnerReaction').value,
+                specialNotes: document.getElementById('specialNotes').value
+            };
+            const modules = [];
+            const rows = document.getElementById('meceTable').querySelectorAll('tbody tr');
+
+            for (let i = 1; i <= currentModuleCount; i++) {
+                modules.push({
+                    name: rows[0].children[i].querySelector('input').value || '',
+                    icebreaking: rows[1].children[i].querySelector('textarea').value || '',
+                    examples: rows[2].children[i].querySelector('textarea').value || '',
+                    diagnosis: rows[3].children[i].querySelector('textarea').value || '',
+                    videos: rows[4].children[i].querySelector('textarea').value || '',
+                    activities: rows[5].children[i].querySelector('textarea').value || '',
+                    ending: rows[6].children[i].querySelector('textarea').value || ''
+                });
+            }
+            return { basic, overall, modules };
+        }
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const dateString = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+            document.getElementById('date').value = dateString;
+            updateActiveButton(2);
+        });
+    </script>
+</body>
+</html>
