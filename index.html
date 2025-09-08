@@ -206,11 +206,6 @@
                                 <td><textarea class="mece-input"></textarea></td>
                             </tr>
                             <tr>
-                                <td class="question-cell">교육 중 <strong>예화/예시</strong></td>
-                                <td><textarea class="mece-input"></textarea></td>
-                                <td><textarea class="mece-input"></textarea></td>
-                            </tr>
-                            <tr>
                                 <td class="question-cell"><strong>진단</strong></td>
                                 <td><textarea class="mece-input"></textarea></td>
                                 <td><textarea class="mece-input"></textarea></td>
@@ -222,11 +217,6 @@
                             </tr>
                             <tr>
                                 <td class="question-cell"><strong>스팟/액티비티</strong></td>
-                                <td><textarea class="mece-input"></textarea></td>
-                                <td><textarea class="mece-input"></textarea></td>
-                            </tr>
-                            <tr>
-                                <td class="question-cell"><strong>마무리 예화/멘트</strong></td>
                                 <td><textarea class="mece-input"></textarea></td>
                                 <td><textarea class="mece-input"></textarea></td>
                             </tr>
@@ -244,8 +234,8 @@
                     <div class="error-message" id="learnerReaction-error">없으면 '없음' 또는 'X'로 기재해주세요!</div>
                 </div>
                 <div class="form-group" style="margin-top: 20px;">
-                    <label for="specialNotes">기타 특이사항</label>
-                    <textarea id="specialNotes" class="mece-input" style="height: 100px;" placeholder="기타 특이사항을 자유롭게 기재해주세요."></textarea>
+                    <label for="specialNotes">기타(강사 의견 및 개선 사항)</label>
+                    <textarea id="specialNotes" class="mece-input" style="height: 100px;" placeholder="의견 및 개선 필요사항을 자유롭게 기재해주세요."></textarea>
                     <div class="error-message" id="specialNotes-error">없으면 '없음' 또는 'X'로 기재해주세요!</div>
                 </div>
             </div>
@@ -386,11 +376,9 @@ fetch(APPS_SCRIPT_URL, {
                 const i = idx + 1;
                 if (!m.name.trim()) { showErrorForTableCell('module-name', i); isValid = false; }
                 if (!m.icebreaking.trim()) { showErrorForTableCell('icebreaking', i); isValid = false; }
-                if (!m.examples.trim()) { showErrorForTableCell('examples', i); isValid = false; }
                 if (!m.diagnosis.trim()) { showErrorForTableCell('diagnosis', i); isValid = false; }
                 if (!m.videos.trim()) { showErrorForTableCell('videos', i); isValid = false; }
                 if (!m.activities.trim()) { showErrorForTableCell('activities', i); isValid = false; }
-                if (!m.ending.trim()) { showErrorForTableCell('ending', i); isValid = false; }
             });
 
             // 전체 정보
@@ -413,12 +401,10 @@ fetch(APPS_SCRIPT_URL, {
             switch (type) {
                 case 'module-name': rowIndex = 0; break;
                 case 'icebreaking': rowIndex = 1; break;
-                case 'examples': rowIndex = 2; break;
-                case 'diagnosis': rowIndex = 3; break;
-                case 'videos': rowIndex = 4; break;
-                case 'activities': rowIndex = 5; break;
-                case 'ending': rowIndex = 6; break;
-            }
+                case 'diagnosis': rowIndex = 2; break;
+                case 'videos': rowIndex = 3; break;
+                case 'activities': rowIndex = 4; break;
+        }
             const row = tbody.children[rowIndex];
             const cell = row.children[moduleIndex];
             const input = cell.querySelector('input, textarea');
@@ -469,10 +455,8 @@ fetch(APPS_SCRIPT_URL, {
                     name: rows[0].children[i].querySelector('input').value || '',
                     icebreaking: rows[1].children[i].querySelector('textarea').value || '',
                     examples: rows[2].children[i].querySelector('textarea').value || '',
-                    diagnosis: rows[3].children[i].querySelector('textarea').value || '',
-                    videos: rows[4].children[i].querySelector('textarea').value || '',
-                    activities: rows[5].children[i].querySelector('textarea').value || '',
-                    ending: rows[6].children[i].querySelector('textarea').value || ''
+                    videos: rows[3].children[i].querySelector('textarea').value || '',
+                    activities: rows[4].children[i].querySelector('textarea').value || '',
                 });
             }
             return { basic, overall, modules };
