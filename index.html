@@ -195,42 +195,32 @@
                             </tr>
                         </thead>
                         <tbody>
-  <tr data-row="module-name">
-    <td class="question-cell">모듈명</td>
-    <td><input type="text" class="module-name-input" placeholder="모듈명 입력"></td>
-    <td><input type="text" class="module-name-input" placeholder="모듈명 입력"></td>
-  </tr>
-  <tr data-row="icebreaking">
-    <td class="question-cell"><strong>아이스브레이킹</strong> 소재</td>
-    <td><textarea class="mece-input"></textarea></td>
-    <td><textarea class="mece-input"></textarea></td>
-  </tr>
-  <tr data-row="examples">
-    <td class="question-cell">교육 중 <strong>예화/예시</strong></td>
-    <td><textarea class="mece-input"></textarea></td>
-    <td><textarea class="mece-input"></textarea></td>
-  </tr>
-  <tr data-row="diagnosis">
-    <td class="question-cell"><strong>진단</strong></td>
-    <td><textarea class="mece-input"></textarea></td>
-    <td><textarea class="mece-input"></textarea></td>
-  </tr>
-  <tr data-row="videos">
-    <td class="question-cell">사용 <strong>동영상</strong></td>
-    <td><textarea class="mece-input"></textarea></td>
-    <td><textarea class="mece-input"></textarea></td>
-  </tr>
-  <tr data-row="activities">
-    <td class="question-cell"><strong>스팟/액티비티</strong></td>
-    <td><textarea class="mece-input"></textarea></td>
-    <td><textarea class="mece-input"></textarea></td>
-  </tr>
-  <tr data-row="closing">
-    <td class="question-cell"><strong>마무리 예화/멘트</strong></td>
-    <td><textarea class="mece-input"></textarea></td>
-    <td><textarea class="mece-input"></textarea></td>
-  </tr>
-</tbody>
+                            <tr>
+                                <td class="question-cell">모듈명</td>
+                                <td><input type="text" class="module-name-input" placeholder="모듈명 입력"></td>
+                                <td><input type="text" class="module-name-input" placeholder="모듈명 입력"></td>
+                            </tr>
+                            <tr>
+                                <td class="question-cell"><strong>아이스브레이킹</strong> 소재</td>
+                                <td><textarea class="mece-input"></textarea></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="question-cell"><strong>진단</strong></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="question-cell">사용 <strong>동영상</strong></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                            </tr>
+                            <tr>
+                                <td class="question-cell"><strong>스팟/액티비티</strong></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                                <td><textarea class="mece-input"></textarea></td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -245,7 +235,7 @@
                 </div>
                 <div class="form-group" style="margin-top: 20px;">
                     <label for="specialNotes">기타(강사 의견 및 개선 사항)</label>
-                    <textarea id="specialNotes" class="mece-input" style="height: 100px;" placeholder="의견 및 개선 필요사항을 자유롭게 기재해주세요."></textarea>
+                    <textarea id="specialNotes" class="mece-input" style="height: 100px;" placeholder="강사 의견 및 개선 사항을 자유롭게 기재해주세요."></textarea>
                     <div class="error-message" id="specialNotes-error">없으면 '없음' 또는 'X'로 기재해주세요!</div>
                 </div>
             </div>
@@ -406,35 +396,29 @@ fetch(APPS_SCRIPT_URL, {
         }
 
         function showErrorForTableCell(type, moduleIndex) {
-  const rowKeyMap = {
-    'module-name': 'module-name',
-    'icebreaking': 'icebreaking',
-    'diagnosis':   'diagnosis',
-    'videos':      'videos',
-    'activities':  'activities'
-  };
-  const rowKey = rowKeyMap[type];
-  if (!rowKey) return;
-
-  const row = document.querySelector(`#meceTable tbody tr[data-row="${rowKey}"]`);
-  if (!row) return;
-
-  const cell = row.children[moduleIndex];
-  if (!cell) return;
-
-  const input = cell.querySelector('input, textarea');
-  if (input) {
-    input.classList.add('error-border');
-    const existing = cell.querySelector('.error-message');
-    if (existing) existing.remove();
-    const div = document.createElement('div');
-    div.className = 'error-message';
-    div.style.display = 'block';
-    div.textContent = "없으면 '없음'이나 'X'로 기재해주세요!";
-    cell.appendChild(div);
-  }
-}
-
+            const tbody = document.getElementById('meceTable').querySelector('tbody');
+            let rowIndex;
+            switch (type) {
+                case 'module-name': rowIndex = 0; break;
+                case 'icebreaking': rowIndex = 1; break;
+                case 'diagnosis': rowIndex = 2; break;
+                case 'videos': rowIndex = 3; break;
+                case 'activities': rowIndex = 4; break;
+            }
+            const row = tbody.children[rowIndex];
+            const cell = row.children[moduleIndex];
+            const input = cell.querySelector('input, textarea');
+            if (input) {
+                input.classList.add('error-border');
+                const existing = cell.querySelector('.error-message');
+                if (existing) existing.remove();
+                const div = document.createElement('div');
+                div.className = 'error-message';
+                div.style.display = 'block';
+                div.textContent = "없으면 '없음'이나 'X'로 기재해주세요!";
+                cell.appendChild(div);
+            }
+        }
 
         function resetForm() {
             document.getElementById('instructor').value = '';
@@ -452,39 +436,31 @@ fetch(APPS_SCRIPT_URL, {
             document.getElementById('specialNotes').value = '';
         }
 
-        function getCellValueByRow(rowKey, colIndex, selector) {
-  const row = document.querySelector(`#meceTable tbody tr[data-row="${rowKey}"]`);
-  if (!row) return '';
-  const cell = row.children[colIndex]; // M1=1, M2=2...
-  if (!cell) return '';
-  const el = cell.querySelector(selector);
-  return el ? (el.value ?? '') : '';
-}
+        function collectFormData() {
+            const basic = {
+                instructor: document.getElementById('instructor').value,
+                company: document.getElementById('company').value,
+                course: document.getElementById('course').value,
+                date: document.getElementById('date').value
+            };
+            const overall = {
+                learnerReaction: document.getElementById('learnerReaction').value,
+                specialNotes: document.getElementById('specialNotes').value
+            };
+            const modules = [];
+            const rows = document.getElementById('meceTable').querySelectorAll('tbody tr');
 
-function collectFormData() {
-  const basic = {
-    instructor: document.getElementById('instructor').value,
-    company: document.getElementById('company').value,
-    course: document.getElementById('course').value,
-    date: document.getElementById('date').value
-  };
-  const overall = {
-    learnerReaction: document.getElementById('learnerReaction').value,
-    specialNotes: document.getElementById('specialNotes').value
-  };
-
-  const modules = [];
-  for (let i = 1; i <= currentModuleCount; i++) {
-    modules.push({
-      name:        getCellValueByRow('module-name', i, 'input'),
-      icebreaking: getCellValueByRow('icebreaking',  i, 'textarea'),
-      diagnosis:   getCellValueByRow('diagnosis',    i, 'textarea'),
-      videos:      getCellValueByRow('videos',       i, 'textarea'),
-      activities:  getCellValueByRow('activities',   i, 'textarea'),
-    });
-  }
-  return { basic, overall, modules };
-}
+            for (let i = 1; i <= currentModuleCount; i++) {
+                modules.push({
+                    name: rows[0].children[i].querySelector('input').value || '',
+                    icebreaking: rows[1].children[i].querySelector('textarea').value || '',
+                    diagnosis: rows[2].children[i].querySelector('textarea').value || '',
+                    videos: rows[3].children[i].querySelector('textarea').value || '',
+                    activities: rows[4].children[i].querySelector('textarea').value || ''
+                });
+            }
+            return { basic, overall, modules };
+        }
 
         // 초기화
         document.addEventListener('DOMContentLoaded', () => {
